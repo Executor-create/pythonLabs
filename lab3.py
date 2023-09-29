@@ -1,206 +1,85 @@
-class Hotel: 
-  def __init__(self, cost):
-    self.cost = cost
-    self.services = []
-  
-  def addService(self, service):
-    self.services.append(service)
+import random
 
-  def removeService(self, service):
-    self.services.remove(service)
-
-class Service:
-  def __init__(self, name, price):
+class Hotel:
+  def __init__(self, name, services = set()):
     self.name = name
-    self.price = price
-
-  def bar(self, client):
-    if client.reserve == True:
-      if client.age >= 18 and client.money >= self.price:
-        if client.stress < 1:
-          client.stress -= 0.25
-          client.money -= self.price
-          if client.stress < 0:
-            client.stress = 0
-        else:
-          print("Your stress value is full")
-          exit()
-      else:
-        print("You're too young")
-        exit()
-    else:
-      print("You don't have reservation")
-      exit()
-    print(vars(client))
-
-  def eat(self, client):
-    if client.reserve == True:
-      if client.money > self.price:
-        if client.hunger < 1:
-          client.hunger += 0.45
-          client.money -= self.price
-          if client.hunger > 1:
-            client.hunger = 1
-        else:
-          print("Your hunger value is full")
-          exit()
-      else:
-        print("You don't have enough money")
-        exit()
-    else:
-      print("You don't have reservation")
-      exit()
-    print(vars(client))
-
-  def childrenRoom(self, client):
-    if client.reserve == True:
-      if client.age < 18:
-        if client.stress > 0:
-          client.stress -= 0.25
-          if client.stress < 0:
-            client.stress = 0
-        else:
-          print("You don't have stress")
-          exit()
-      else:
-        print("You are too old for this")
-        exit()
-    else:
-      print("You don't have reservation")
-      exit()
-    print(vars(client))
-  
-  def massage(self, client):
-    if client.reserver == True:
-      if client.comfort < 1 and client.money >= self.price:
-        client.comfort += 0.45
-        client.money -= self.price
-      else:
-        print("Your comfort value is full or you don't have money")
-        exit()
-    else:
-      print("You don't have reservation")
-      exit()
-    print(vars(client))
-
-class BusinessService(Service):
-  def __init__(self, name, price):
-    super().__init__(name, price)
-
-  def businessRoom(self, client):
-    if client.reserve == True:
-      if client.role == "Businessman":
-        if client.money > self.price:
-          if client.business < 1 and client.show_off < 1:
-            client.business += 0.25
-            client.show_off += 0.10
-            client.money -= self.price
-            print(vars(client))
-          else:
-            print("Your business value is full.")
-            exit()
-        else:
-          print("You don't have enough money")
-      else:
-        print("You are not a businessman.")
-    else:
-      print("You don't have reservation")
-      exit()
-
-class ResortService(Service):
-  def __init__(self, name, price):
-    super().__init__(name, price)
-
-  def doSport(self, client):
-    if client.reserve == True:
-      if client.role == "Sportsman":
-        if client.money > self.price:
-          if client.sport < 1.0:
-            client.sport += 0.25
-            client.money -= self.price
-            print(vars(client))
-          else:
-            print("Your sport value is full.")
-        else:
-          print("You don't have enough money")
-      else:
-        print("You are not a sportsman.")
-    else:
-      print("You don't have reservation")
-      exit()
+    self.services = services
 
 class BusinessHotel(Hotel):
-  def __init__(self, cost):
-    super().__init__(cost)
+  def __init__(self, name, services=set()):
+    super().__init__(name, services)
+    self.services['business'] = 0.5
+
+class SportHotel(Hotel):
+  def __init__(self, name, services=set()):
+    super().__init__(name, services)
+    self.services['sport'] = 0.5
+
+class Service(Hotel):
+  def __init__(self, name, services):
+    super().__init__(name, services)
+    self.name = name
   
-class ResortHotel(Hotel):
-  def __init__(self, cost):
-    super().__init__(cost)
+  def serve(self, client):
+    print(vars(client))
+    while any(client.needs.values()):
+      for need, need_value in client.needs.items():
+        if need in self.services and self.services[need] > 0:
+          if self.services[need] >= need_value:
+            client.needs[need] = 0
+          else:
+            client.needs[need] -= self.services[need]
+      client.needs = {k: round(v, 2) for k, v in client.needs.items()}
+      print(vars(client))
 
+class BusinessService(Service):
+  def __init__(self, name, services=None):
+    super().__init__(name, services)
+  
+  def serve(self, client):
+    super().serve(client)
+    if client.role == 'Businessman':
+      if 'business' in client.needs and client.needs['business'] > 0:
+        print(f"{client.name} has special needs for a businessman.")
+
+class SportService(Service):
+  def __init__(self, name, services=None):
+    super().__init__(name, services)
+
+  def serve(self, client):
+    super().serve(client)
+    if client.role == 'Sportsman':
+      if 'business' in client.needs and client.needs['business'] > 0:
+        print(f"{client.name} has special needs for a sportsman.")
+  
 class Client:
-  def __init__(self, age, hunger, comfort, stress, money):
-    self.age = age
-    self.hunger = hunger
-    self.comfort = comfort
-    self.stress = stress
-    self.money = money
-    self.reserve = False
+  def __init__(self, name, needs=None):
+    self.name = name
+    self.needs = self.generate_random_needs()
 
-  def reservation(self, hotel):
-    if self.money >= hotel.cost:
-      self.money -= hotel.cost
-      self.reserve = True
-      print("You reserved an hotel")
-    else:
-      print("You don't have enough money to reserve hotel")
-
+  def generate_random_needs(self):
+    random_needs = {'eat', 'bar', 'child room', 'massage'}
+    random_values = {need: round(random.uniform(0.1, 1.0), 1) for need in random.sample(random_needs, 3)}
+    
+    return random_values
+  
 class Businessman(Client):
-  def __init__(self, age, hunger, comfort, stress, money, business, show_off):
-    super().__init__(age, hunger, comfort, stress, money)
-    self.business = business
-    self.show_off = show_off
+  def __init__(self, name, needs=None):
+    super().__init__(name, needs)
     self.role = "Businessman"
+    self.needs['business'] = round(random.uniform(0.1, 1.0), 1)
 
 class Sportsman(Client):
-  def __init__(self, age, hunger, comfort, stress, money, sport):
-    super().__init__(age, hunger, comfort, stress, money)
-    self.sport = sport
+  def __init__(self, name, needs=None):
+    super().__init__(name, needs)
     self.role = "Sportsman"
+    self.needs['sport'] = round(random.uniform(0.1, 1.0), 1)
 
-  def competition(self, *sportsmen):
-    max_value = float('-inf')
-    min_value = float('inf')
-
-    for sportsman in sportsmen:
-      sportsman_sport = sportsman.sport
-
-      if sportsman_sport > max_value:
-        max_value = sportsman_sport
-      if sportsman_sport < min_value:
-        min_value = sportsman_sport
-
-    print(f"Highest sports value with {max_value} points")
-    print(f"Lowest sports value with {min_value} points")
-
-hotel = Hotel(200)
-busHotel = BusinessHotel(500)
-resHotel = ResortHotel(200)
-
-busService = BusinessService("Business Room", 500)
-resService = ResortService("Do Sport", 200)
-childService = Service("Child", 500)
-eatService = Service("Eat", 100)
-barService = Service("Bar", 200)
-
-busHotel.addService(busService)
-hotel.addService(barService)
-hotel.addService(barService)
-hotel.addService(childService)
-
-businessman = Businessman(50, 0.25, 0.50, 0.45, 1000, 0.25, 0.5)
-sportsman = Sportsman(50, 0.25, 0.50, 0, 1000, 0.25)
-client = Client(15, 0.50, 0.25, 0.43, 40)
-
-businessman.reservation(hotel)
-
-barService.bar(businessman)
+client = Client("John")
+bus = Businessman("Bob")
+busHotel = BusinessHotel("Business Hotel", services={"eat": 0.5, "bar": 0.35, "child room": 0.25, 'massage': 0.5})
+hotel = Hotel("Hotel", services={"eat": 0.5, "bar": 0.35, "child room": 0.25, 'massage': 0.5})
+service = Service(hotel.name, hotel.services)
+busService = BusinessService(busHotel.name, busHotel.services)
+service.serve(client)
+busService.serve(bus)
