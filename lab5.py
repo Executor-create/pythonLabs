@@ -25,9 +25,9 @@ def timePortal():
         time.sleep(1)
         print(f"You are traveling in {year} with event {event}")
       else:
-        print(f"Event for year {year} not found")
+        raise (f"Event for year {year} not found")
   except:
-    print("Such year not found")
+    raise ValueError("Such year not found")
 
 def addEvent(year, description):
   events.append((year, description))
@@ -59,7 +59,7 @@ while True:
       year = int(input("Enter deleted year of event: "))
       deleteEvent(year)
     except ValueError:
-      print("No such year")
+      raise ValueError("No such year")
   elif choice == 4:
     timePortal()
   elif choice == 5:
