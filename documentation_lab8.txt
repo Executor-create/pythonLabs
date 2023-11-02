@@ -1,0 +1,20 @@
+Description:
+  The charivna_kulka function simulates the operation of a "magic prediction ball" as a toy that predicts the future.
+  It accepts a question as a string and returns an answer from a list of possible answers.
+  The answers can be, for example, "Yep", "Nope", "Maybe", etc.
+
+Parameters:
+  question(string): A string that contains the question for which you want to generate an answer.
+
+Return: 
+  A line representing the answer to a question.
+
+Tests:
+  - Checking the correctness of the answer for the correct question.
+  - Check for string return.
+  - Tests for response to an empty question or non-string input.
+  - Checking the correctness of the answer for another correct question.
+
+Example:
+  result = charivna_kulka("Is it raining today?")
+  print(result) // Yep
