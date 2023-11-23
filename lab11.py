@@ -59,8 +59,8 @@ class ChatClient:
   def send_message(self, event=None):
       message = self.e.get().strip()
       if self.stored_name.get() and message:
-          full_message = f"{self.stored_name.get()}: {message}"
-          self.txt.insert(tk.END, "\n" + full_message)
+          full_message = f"{self.stored_name.get()}: {message}\n"
+          self.txt.insert(tk.END, "\n" + full_message.lstrip())
           self.e.delete(0, tk.END)
           try:
             self.client_socket.send(full_message.encode('utf-8'))
